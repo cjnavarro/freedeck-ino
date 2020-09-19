@@ -20,7 +20,7 @@
 #include <avr/power.h>
 
 #include "HID-Project.h"
-#define BD_COUNT 6
+#define BD_COUNT 1
 #define CS 10
 #define FONT_NORMAL 0
 #define FONT_LARGE 1
@@ -68,6 +68,7 @@ uint8_t up[BD_COUNT] = {1};
 uint32_t downTime[BD_COUNT] = {0};
 uint8_t longPressed[BD_COUNT] = {0};
 uint8_t pageChanged = 0;
+uint8_t sda_delay = 0;
 SdFat SD;
 File configFile;
 
@@ -105,10 +106,10 @@ static inline void i2cByteOut(uint8_t b) {
 void i2cBegin(uint8_t addr) {
 	I2CPORT |= ((1 << BB_SDA) + (1 << BB_SCL));
 	I2CDDR |= ((1 << BB_SDA) + (1 << BB_SCL));
-	I2CPORT &= ~(1 << BB_SDA);				 // data line low first
-	delayMicroseconds((I2C_DELAY + 1) * 2);	 // compatibility reasons
-	I2CPORT &= ~(1 << BB_SCL);	// then clock line low is a START signal
-	i2cByteOut(addr << 1);		// send the slave address
+	I2CPORT &= ~(1 << BB_SDA);	   // data line low first
+	delayMicroseconds(sda_delay);  // compatibility reasons
+	I2CPORT &= ~(1 << BB_SCL);	   // then clock line low is a START signal
+	i2cByteOut(addr << 1);		   // send the slave address
 } /* i2cBegin() */
 
 void i2cWrite(uint8_t *pData, uint8_t bLen) {
@@ -549,7 +550,7 @@ void setup() {
 	delay(BOOT_DELAY);
 	Keyboard.begin();
 	Consumer.begin();
-	pinMode(6, INPUT_PULLUP);
+	pinMode(7, INPUT_PULLUP);
 	pinMode(S0_PIN, OUTPUT);
 #if BD_COUNT > 2
 	pinMode(S1_PIN, OUTPUT);
@@ -562,7 +563,7 @@ void setup() {
 #endif
 	initAllDisplays();
 	delay(100);
-	initSdCard();
+	// initSdCard();
 	postSetup();
 }
 
