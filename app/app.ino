@@ -22,6 +22,7 @@
 #include "./src/FreeDeckSerialAPI.h"
 void setup() {
   Serial.begin(4000000);
+  //Serial.begin(9600);
   Serial.setTimeout(100);
   delay(BOOT_DELAY);
   Keyboard.begin();
@@ -34,13 +35,28 @@ void setup() {
 #if BD_COUNT > 4
   pinMode(S2_PIN, OUTPUT);
 #endif
-#if BD_COUNT > 8
-  pinMode(S3_PIN, OUTPUT);
-#endif
+// Stolen by deej pins
+//#if BD_COUNT > 8
+//  pinMode(S3_PIN, OUTPUT);
+//#endif
+
+  pinMode(D_S0_PIN, OUTPUT);
+  pinMode(D_S1_PIN, OUTPUT);
+  pinMode(D_S2_PIN, OUTPUT);
+
+   pinMode(A3, INPUT);
+
+  pinMode(D_BUTTON0_PIN, INPUT_PULLUP);
+  pinMode(D_BUTTON1_PIN, INPUT_PULLUP);
+  pinMode(D_BUTTON2_PIN, INPUT_PULLUP);
+  pinMode(D_BUTTON3_PIN, INPUT_PULLUP);
+
   initAllDisplays();
   delay(100);
   initSdCard();
   postSetup();
+  delay(100);
+  displayDeej();
 }
 
 void loop() {
@@ -48,6 +64,9 @@ void loop() {
   for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
     checkButtonState(buttonIndex);
   }
+  readSliders();
+  Serial.println(analogRead(A3));
+  displayDeej();;
   if (TIMEOUT_TIME > 0)
     checkTimeOut();
 }

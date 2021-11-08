@@ -11,6 +11,7 @@ extern SdFat SD;
 
 int getBitValue(int number, int place);
 void setMuxAddress(int address, uint8_t type = TYPE_DISPLAY);
+void setMuxAddressDeej(int address, uint8_t type = TYPE_DISPLAY);
 void setGlobalContrast(unsigned short c);
 void setSetting();
 void pressKeys();
@@ -18,6 +19,8 @@ void sendText();
 void changePage();
 void pressSpecialKey();
 void displayImage(int16_t imageNumber);
+void displayDeej();
+void readSliders();
 uint8_t getCommand(uint8_t button, uint8_t secondary);
 void onButtonPress(uint8_t buttonIndex, uint8_t secondary);
 void onButtonRelease(uint8_t buttonIndex, uint8_t secondary);

@@ -15,6 +15,11 @@ SdFat SD;
 File configFile;
 Button buttons[BD_COUNT];
 
+File icon0;
+File icon1;
+File icon2;
+File icon3;
+
 int currentPage = 0;
 int pageCount;
 unsigned short int fileImageDataOffset = 0;
@@ -53,10 +58,25 @@ void setMuxAddress(int address, uint8_t type = TYPE_DISPLAY) {
   digitalWrite(S2_PIN, S2);
 #endif
 
-#if BD_COUNT > 8
-  int S3 = getBitValue(address, 3);
-  digitalWrite(S3_PIN, S3);
-#endif
+// deej steals this o not use
+//#if BD_COUNT > 8
+//  int S3 = getBitValue(address, 3);
+//  digitalWrite(S3_PIN, S3);
+//#endif
+
+  delay(1); // wait for multiplexer to switch
+}
+
+void setMuxAddressDeej(int address, uint8_t type = TYPE_DISPLAY) {
+  
+  int D_S0 = getBitValue(address, 0);
+  digitalWrite(D_S0_PIN, D_S0);
+
+  int D_S1 = getBitValue(address, 1);
+  digitalWrite(D_S1_PIN, D_S1);
+  
+  int D_S2 = getBitValue(address, 2);
+  digitalWrite(D_S2_PIN, D_S2);
 
   delay(1); // wait for multiplexer to switch
 }
@@ -135,6 +155,18 @@ void displayImage(int16_t imageNumber) {
   }
 }
 
+void displayDeej() {
+  setMuxAddress(6, TYPE_DISPLAY);
+  // deej screens (starts at offset 4)
+  for (uint8_t faderIndex = 4; faderIndex < (FADER_COUNT * 2); faderIndex++) {
+	  setMuxAddressDeej(faderIndex, TYPE_DISPLAY);
+	  delay(1);
+	  displayImage(faderIndex + 2);
+  }
+  
+  //setMuxAddressDeej(0, TYPE_DISPLAY);
+}
+
 uint8_t getCommand(uint8_t button, uint8_t secondary) {
   configFile.seek((BD_COUNT * currentPage + button + 1) * 16 + 8 * secondary);
   uint8_t command;
@@ -176,7 +208,7 @@ void loadPage(int16_t pageIndex) {
 
     setMuxAddress(buttonIndex, TYPE_DISPLAY);
     delay(1);
-    displayImage(pageIndex * BD_COUNT + buttonIndex);
+    displayImage(pageIndex * BD_COUNT + buttonIndex);;
   }
 }
 
@@ -195,6 +227,22 @@ void initAllDisplays() {
     oledInit(0x3c, 0, 0);
     oledFill(255);
   }
+  
+  setMuxAddress(6, TYPE_DISPLAY);
+  
+  // deej screens (starts at offset 4)
+  for (uint8_t faderIndex = 4; faderIndex < (FADER_COUNT * 2); faderIndex++) {
+	  setMuxAddressDeej(faderIndex, TYPE_DISPLAY);
+	  delay(1);
+	  oledInit(0x3c, 0, 0);
+	  oledFill(255);
+  }
+}
+
+void readSliders() {
+  setMuxAddress(6, TYPE_BUTTON);
+  Serial.println("AD");
+  setMuxAddressDeej(0, TYPE_BUTTON);
 }
 
 void loadConfigFile() {
@@ -215,7 +263,6 @@ void postSetup() {
   loadConfigFile();
   configFile.seekSet(4);
   setGlobalContrast(configFile.read());
-
   loadPage(0);
 }
 
