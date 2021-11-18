@@ -20,6 +20,9 @@
 #include "./settings.h"
 #include "./src/FreeDeck.h"
 #include "./src/FreeDeckSerialAPI.h"
+
+int analogSliderValues[4];
+
 void setup() {
   Serial.begin(4000000);
   //Serial.begin(9600);
@@ -44,10 +47,10 @@ void setup() {
   pinMode(D_S1_PIN, OUTPUT);
   pinMode(D_S2_PIN, OUTPUT);
 
-   pinMode(A3, INPUT);
+  pinMode(A3, INPUT);
 
-  pinMode(D_BUTTON0_PIN, INPUT_PULLUP);
-  pinMode(D_BUTTON1_PIN, INPUT_PULLUP);
+  //pinMode(D_BUTTON0_PIN, INPUT_PULLUP);
+  //pinMode(D_BUTTON1_PIN, INPUT_PULLUP);
   pinMode(D_BUTTON2_PIN, INPUT_PULLUP);
   pinMode(D_BUTTON3_PIN, INPUT_PULLUP);
 
@@ -55,8 +58,8 @@ void setup() {
   delay(100);
   initSdCard();
   postSetup();
+  //displayDeej();
   delay(100);
-  displayDeej();
 }
 
 void loop() {
@@ -64,9 +67,35 @@ void loop() {
   for (uint8_t buttonIndex = 0; buttonIndex < BD_COUNT; buttonIndex++) {
     checkButtonState(buttonIndex);
   }
-  readSliders();
-  Serial.println(analogRead(A3));
-  displayDeej();;
-  if (TIMEOUT_TIME > 0)
+
+  displayDeej();
+  if (TIMEOUT_TIME > 0) {
     checkTimeOut();
+  }
+
+  updateSliderValues();
+  sendSliderValues();
+  
+}
+
+void updateSliderValues() {
+  for (int i = 0; i < FADER_COUNT; i++) {
+     readSliders(i);
+     analogSliderValues[i] = analogRead(A3);
+     //Serial.println(analogSliderValues[i]);
+  }
+}
+
+void sendSliderValues() {
+  String builtString = String("");
+
+  for (int i = 0; i < FADER_COUNT; i++) {
+    builtString += String((int)analogSliderValues[i]);
+
+    if (i < FADER_COUNT - 1) {
+      builtString += String("|");
+    }
+  }
+  
+  Serial.println(builtString);
 }

@@ -20,7 +20,7 @@ void changePage();
 void pressSpecialKey();
 void displayImage(int16_t imageNumber);
 void displayDeej();
-void readSliders();
+void readSliders(int index);
 uint8_t getCommand(uint8_t button, uint8_t secondary);
 void onButtonPress(uint8_t buttonIndex, uint8_t secondary);
 void onButtonRelease(uint8_t buttonIndex, uint8_t secondary);

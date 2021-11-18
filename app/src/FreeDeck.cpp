@@ -77,7 +77,7 @@ void setMuxAddressDeej(int address, uint8_t type = TYPE_DISPLAY) {
   
   int D_S2 = getBitValue(address, 2);
   digitalWrite(D_S2_PIN, D_S2);
-
+  
   delay(1); // wait for multiplexer to switch
 }
 
@@ -158,13 +158,14 @@ void displayImage(int16_t imageNumber) {
 void displayDeej() {
   setMuxAddress(6, TYPE_DISPLAY);
   // deej screens (starts at offset 4)
-  for (uint8_t faderIndex = 4; faderIndex < (FADER_COUNT * 2); faderIndex++) {
-	  setMuxAddressDeej(faderIndex, TYPE_DISPLAY);
-	  delay(1);
-	  displayImage(faderIndex + 2);
-  }
   
-  //setMuxAddressDeej(0, TYPE_DISPLAY);
+  uint8_t pageOffset = 6 * 3; // Page 4
+  
+  for (uint8_t index = 0; index < FADER_COUNT; index++) {
+	  setMuxAddressDeej(index + FADER_COUNT, TYPE_DISPLAY);
+	  delay(1);
+	  displayImage(pageOffset + index);
+  }
 }
 
 uint8_t getCommand(uint8_t button, uint8_t secondary) {
@@ -228,7 +229,7 @@ void initAllDisplays() {
     oledFill(255);
   }
   
-  setMuxAddress(6, TYPE_DISPLAY);
+  setMuxAddress(BD_COUNT, TYPE_DISPLAY);
   
   // deej screens (starts at offset 4)
   for (uint8_t faderIndex = 4; faderIndex < (FADER_COUNT * 2); faderIndex++) {
@@ -239,10 +240,9 @@ void initAllDisplays() {
   }
 }
 
-void readSliders() {
+void readSliders(int index) {
   setMuxAddress(6, TYPE_BUTTON);
-  Serial.println("AD");
-  setMuxAddressDeej(0, TYPE_BUTTON);
+  setMuxAddressDeej(index, TYPE_BUTTON);
 }
 
 void loadConfigFile() {

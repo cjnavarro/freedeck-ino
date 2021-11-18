@@ -26,22 +26,22 @@
 #define S2_PIN 9
 
 // deej pins
-#define D_BUTTON0_PIN 10
-#define D_BUTTON1_PIN A0
+//#define D_BUTTON0_PIN 16
+//#define D_BUTTON1_PIN A0
 #define D_BUTTON2_PIN A1
 #define D_BUTTON3_PIN A2
 
 #define D_FADER_PIN A3
 
 #define D_S0_PIN 5
-#define D_S1_PIN 15
+#define D_S1_PIN A0
 #define D_S2_PIN 4
 
 // the size of the image chunks send to the displays
 // try different values here. good displays can go higher.
 // 512 for example.
 // worse need to go lower. 64 for example
-#define IMG_CACHE_SIZE 256
+#define IMG_CACHE_SIZE 128
 
 // the duration it takes after a long press is triggered
 // maybe move this to the configurator?
@@ -68,8 +68,8 @@
 // if your screen is flickering, choose a lower number. the worse the screen,
 // the lower the number.
 // #define REFRESH_FREQUENCY 0xf2
- #define REFRESH_FREQUENCY 0xf1
-// #define REFRESH_FREQUENCY 0xc1
+// #define REFRESH_FREQUENCY 0xf1
+ #define REFRESH_FREQUENCY 0xc1
 // #define REFRESH_FREQUENCY 0x80
 
 // Pin or port numbers for SDA and SCL
