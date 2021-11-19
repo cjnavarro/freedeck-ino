@@ -22,10 +22,10 @@
 #include "./src/FreeDeckSerialAPI.h"
 
 int analogSliderValues[4];
+int buttonValues[4] = { 1,1,1,1 };
 
 void setup() {
   Serial.begin(4000000);
-  //Serial.begin(9600);
   Serial.setTimeout(100);
   delay(BOOT_DELAY);
   Keyboard.begin();
@@ -49,8 +49,8 @@ void setup() {
 
   pinMode(A3, INPUT);
 
-  //pinMode(D_BUTTON0_PIN, INPUT_PULLUP);
-  //pinMode(D_BUTTON1_PIN, INPUT_PULLUP);
+  pinMode(D_BUTTON0_PIN, INPUT_PULLUP);
+  pinMode(D_BUTTON1_PIN, INPUT_PULLUP);
   pinMode(D_BUTTON2_PIN, INPUT_PULLUP);
   pinMode(D_BUTTON3_PIN, INPUT_PULLUP);
 
@@ -74,8 +74,7 @@ void loop() {
   }
 
   updateSliderValues();
-  sendSliderValues();
-  
+  sendSliderValues(); 
 }
 
 void updateSliderValues() {
@@ -87,6 +86,8 @@ void updateSliderValues() {
 }
 
 void sendSliderValues() {
+  Serial.flush();
+  Serial.begin(9600);
   String builtString = String("");
 
   for (int i = 0; i < FADER_COUNT; i++) {
@@ -98,4 +99,6 @@ void sendSliderValues() {
   }
   
   Serial.println(builtString);
+  Serial.flush();
+  Serial.begin(4000000);
 }
