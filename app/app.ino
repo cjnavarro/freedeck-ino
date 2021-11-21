@@ -16,13 +16,23 @@
 // <https://www.gnu.org/licenses/>.
 
 #include <HID-Project.h>
+#include <Wire.h>
+#include <Filter.h>
 
 #include "./settings.h"
 #include "./src/FreeDeck.h"
 #include "./src/FreeDeckSerialAPI.h"
 
 int analogSliderValues[4];
-int buttonValues[4] = { 1,1,1,1 };
+float analogSliderValuesFiltered[4];
+
+boolean buttonsPressed[4] = { false, false, false, false };
+boolean buttonsToggled[4] = { false, false, false, false };
+
+ExponentialFilter<long> sliderFilter1(30, 500);
+ExponentialFilter<long> sliderFilter2(30, 500);
+ExponentialFilter<long> sliderFilter3(30, 500);
+ExponentialFilter<long> sliderFilter4(30, 500);
 
 void setup() {
   Serial.begin(4000000);
@@ -58,7 +68,6 @@ void setup() {
   delay(100);
   initSdCard();
   postSetup();
-  //displayDeej();
   delay(100);
 }
 
@@ -68,21 +77,72 @@ void loop() {
     checkButtonState(buttonIndex);
   }
 
-  displayDeej();
   if (TIMEOUT_TIME > 0) {
     checkTimeOut();
   }
 
+  checkSliderButtons();
+
   updateSliderValues();
   sendSliderValues(); 
+
+  displayDeej(analogSliderValuesFiltered);
+
+    Serial.flush();
+  Serial.begin(4000000);
 }
+
+void checkSliderButtons() {
+  if(!digitalRead(D_BUTTON0_PIN) && !buttonsPressed[0]){
+    buttonsPressed[0] = true;
+    buttonsToggled[0] = !buttonsToggled[0];
+  }
+  if(digitalRead(D_BUTTON0_PIN) && buttonsPressed[0]){
+     buttonsPressed[0] = false;
+  }
+
+  if(!digitalRead(D_BUTTON1_PIN) && !buttonsPressed[1]){
+    buttonsPressed[1] = true;
+    buttonsToggled[1] = !buttonsToggled[1];
+  }
+  if(digitalRead(D_BUTTON1_PIN) && buttonsPressed[1]){
+     buttonsPressed[1] = false;
+  }
+
+  if(!digitalRead(D_BUTTON2_PIN) && !buttonsPressed[2]){
+    buttonsPressed[2] = true;
+    buttonsToggled[2] = !buttonsToggled[2];
+  }
+  if(digitalRead(D_BUTTON2_PIN) && buttonsPressed[2]){
+     buttonsPressed[2] = false;
+  }
+
+  if(!digitalRead(D_BUTTON3_PIN) && !buttonsPressed[3]){
+    buttonsPressed[3] = true;
+    buttonsToggled[3] = !buttonsToggled[3];
+  }
+  if(digitalRead(D_BUTTON3_PIN) && buttonsPressed[3]){
+     buttonsPressed[3] = false;
+  }
+};
 
 void updateSliderValues() {
   for (int i = 0; i < FADER_COUNT; i++) {
      readSliders(i);
-     analogSliderValues[i] = analogRead(A3);
-     //Serial.println(analogSliderValues[i]);
+     analogSliderValues[i] = buttonsToggled[i] ? 1 : analogRead(A3);
   }
+
+  sliderFilter1.Filter(analogSliderValues[0]);
+  analogSliderValuesFiltered[0] = sliderFilter1.Current();
+  
+  sliderFilter2.Filter(analogSliderValues[1]);
+  analogSliderValuesFiltered[1] = sliderFilter2.Current();
+  
+  sliderFilter3.Filter(analogSliderValues[2]);
+  analogSliderValuesFiltered[2] = sliderFilter3.Current();
+  
+  sliderFilter4.Filter(analogSliderValues[3]);
+  analogSliderValuesFiltered[3] = sliderFilter4.Current();
 }
 
 void sendSliderValues() {
@@ -99,6 +159,6 @@ void sendSliderValues() {
   }
   
   Serial.println(builtString);
-  Serial.flush();
-  Serial.begin(4000000);
+  //Serial.flush();
+  //Serial.begin(4000000);
 }

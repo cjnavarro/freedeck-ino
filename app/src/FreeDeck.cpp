@@ -15,16 +15,12 @@ SdFat SD;
 File configFile;
 Button buttons[BD_COUNT];
 
-File icon0;
-File icon1;
-File icon2;
-File icon3;
-
 int currentPage = 0;
 int pageCount;
 unsigned short int fileImageDataOffset = 0;
 short int contrast = 0;
 unsigned char imageCache[IMG_CACHE_SIZE];
+unsigned char progressBar[IMG_CACHE_SIZE];
 
 #ifdef CUSTOM_ORDER
 byte addressToScreen[] = ADDRESS_TO_SCREEN;
@@ -145,26 +141,60 @@ void pressSpecialKey() {
   Consumer.press((ConsumerKeycode)key);
 }
 
-void displayImage(int16_t imageNumber) {
+// Expects value between 0 - 1024
+void setProgressBar(float value)
+{
+    float ydec = value / 1024.000; //get filtered value, convert to decimal percentage
+	int ysize = round(ydec * 128.000); //convert decimal to a factor of screen size
+	
+	for(int i = 0; i < IMG_CACHE_SIZE; i++)
+	{
+		if(i <= ysize)
+		{
+			progressBar[i] = 0xff;
+		}
+		else
+		{
+			progressBar[i] = 0x00;
+		}
+	}
+}
+
+void displayImage(int16_t imageNumber, float value) {
   configFile.seekSet(fileImageDataOffset + imageNumber * 1024L);
+  
   uint8_t byteI = 0;
-  while (configFile.available() && byteI < (1024 / IMG_CACHE_SIZE)) {
-    configFile.read(imageCache, IMG_CACHE_SIZE);
-    oledLoadBMPPart(imageCache, IMG_CACHE_SIZE, byteI * IMG_CACHE_SIZE);
-    byteI++;
+  
+  if(value > 0)
+  {
+    while (configFile.available() && byteI < (960 / IMG_CACHE_SIZE)) {
+      configFile.read(imageCache, IMG_CACHE_SIZE);
+	
+      oledLoadBMPPart(imageCache, IMG_CACHE_SIZE, byteI * IMG_CACHE_SIZE);
+      byteI++;
+    }
+    setProgressBar(value);
+    oledLoadBMPPart(progressBar, IMG_CACHE_SIZE, byteI * IMG_CACHE_SIZE);
+  }
+  else {
+    while (configFile.available() && byteI < (1024 / IMG_CACHE_SIZE)) {
+      configFile.read(imageCache, IMG_CACHE_SIZE);
+	
+      oledLoadBMPPart(imageCache, IMG_CACHE_SIZE, byteI * IMG_CACHE_SIZE);
+      byteI++;
+    }
   }
 }
 
-void displayDeej() {
+void displayDeej(float analogValues[]) {
   setMuxAddress(6, TYPE_DISPLAY);
   // deej screens (starts at offset 4)
-  
   uint8_t pageOffset = 6 * 3; // Page 4
   
   for (uint8_t index = 0; index < FADER_COUNT; index++) {
 	  setMuxAddressDeej(index + FADER_COUNT, TYPE_DISPLAY);
 	  delay(1);
-	  displayImage(pageOffset + index);
+	  displayImage(pageOffset + index, analogValues[index]);
   }
 }
 
@@ -209,7 +239,7 @@ void loadPage(int16_t pageIndex) {
 
     setMuxAddress(buttonIndex, TYPE_DISPLAY);
     delay(1);
-    displayImage(pageIndex * BD_COUNT + buttonIndex);;
+    displayImage(pageIndex * BD_COUNT + buttonIndex, -1);;
   }
 }
 
