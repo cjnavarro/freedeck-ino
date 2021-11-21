@@ -87,9 +87,6 @@ void loop() {
   sendSliderValues(); 
 
   displayDeej(analogSliderValuesFiltered);
-
-    Serial.flush();
-  Serial.begin(4000000);
 }
 
 void checkSliderButtons() {
@@ -159,6 +156,6 @@ void sendSliderValues() {
   }
   
   Serial.println(builtString);
-  //Serial.flush();
-  //Serial.begin(4000000);
+  Serial.flush();
+  Serial.begin(4000000);
 }
