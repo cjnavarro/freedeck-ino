@@ -144,6 +144,7 @@ void updateSliderValues() {
 }
 
 void sendSliderValues() {
+  // TODO probably can share same baud here, was hearing wierd audio skips though
   Serial.flush();
   Serial.begin(9600);
   String builtString = String("");
