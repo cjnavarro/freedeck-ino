@@ -37,6 +37,7 @@ ExponentialFilter<long> sliderFilter4(30, 500);
 void setup() {
   Serial.begin(4000000);
   Serial.setTimeout(100);
+  
   delay(BOOT_DELAY);
   Keyboard.begin();
   Consumer.begin();
@@ -156,6 +157,7 @@ void sendSliderValues() {
   }
   
   Serial.println(builtString);
+  
   Serial.flush();
   Serial.begin(4000000);
 }
