@@ -26,8 +26,6 @@
 #define S2_PIN 9
 
 // deej pins
-#define D_PINS { 2, 3, A1, A2 }
-
 #define D_BUTTON0_PIN 2
 #define D_BUTTON1_PIN 3
 #define D_BUTTON2_PIN A1

@@ -26,6 +26,8 @@
 int analogSliderValues[4];
 float analogSliderValuesFiltered[4];
 
+// 19 and 20 are A1 and A2
+uint8_t buttonPins[] = { 2, 3, 19, 20 };
 boolean buttonsPressed[4] = { false, false, false, false };
 boolean buttonsToggled[4] = { false, false, false, false };
 
@@ -91,36 +93,14 @@ void loop() {
 }
 
 void checkSliderButtons() {
-  if(!digitalRead(D_BUTTON0_PIN) && !buttonsPressed[0]){
-    buttonsPressed[0] = true;
-    buttonsToggled[0] = !buttonsToggled[0];
-  }
-  if(digitalRead(D_BUTTON0_PIN) && buttonsPressed[0]){
-     buttonsPressed[0] = false;
-  }
-
-  if(!digitalRead(D_BUTTON1_PIN) && !buttonsPressed[1]){
-    buttonsPressed[1] = true;
-    buttonsToggled[1] = !buttonsToggled[1];
-  }
-  if(digitalRead(D_BUTTON1_PIN) && buttonsPressed[1]){
-     buttonsPressed[1] = false;
-  }
-
-  if(!digitalRead(D_BUTTON2_PIN) && !buttonsPressed[2]){
-    buttonsPressed[2] = true;
-    buttonsToggled[2] = !buttonsToggled[2];
-  }
-  if(digitalRead(D_BUTTON2_PIN) && buttonsPressed[2]){
-     buttonsPressed[2] = false;
-  }
-
-  if(!digitalRead(D_BUTTON3_PIN) && !buttonsPressed[3]){
-    buttonsPressed[3] = true;
-    buttonsToggled[3] = !buttonsToggled[3];
-  }
-  if(digitalRead(D_BUTTON3_PIN) && buttonsPressed[3]){
-     buttonsPressed[3] = false;
+  for(int i = 0; i < FADER_COUNT; i++) {
+	if(!digitalRead(buttonPins[i]) && !buttonsPressed[i]){
+      buttonsPressed[i] = true;
+      buttonsToggled[i] = !buttonsToggled[i];
+    }
+    if(digitalRead(buttonPins[i]) && buttonsPressed[i]){
+      buttonsPressed[i] = false;
+    }
   }
 };
 

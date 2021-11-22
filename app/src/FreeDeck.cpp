@@ -54,7 +54,7 @@ void setMuxAddress(int address, uint8_t type = TYPE_DISPLAY) {
   digitalWrite(S2_PIN, S2);
 #endif
 
-// deej steals this o not use
+// deej steals this do not use
 //#if BD_COUNT > 8
 //  int S3 = getBitValue(address, 3);
 //  digitalWrite(S3_PIN, S3);
@@ -63,6 +63,7 @@ void setMuxAddress(int address, uint8_t type = TYPE_DISPLAY) {
   delay(1); // wait for multiplexer to switch
 }
 
+// TODO remove type
 void setMuxAddressDeej(int address, uint8_t type = TYPE_DISPLAY) {
   
   int D_S0 = getBitValue(address, 0);
@@ -167,7 +168,7 @@ void displayImage(int16_t imageNumber, float value) {
   
   if(value > 0)
   {
-    while (configFile.available() && byteI < (960 / IMG_CACHE_SIZE)) {
+    while (configFile.available() && byteI < ((1024 - IMG_CACHE_SIZE) / IMG_CACHE_SIZE)) {
       configFile.read(imageCache, IMG_CACHE_SIZE);
 	
       oledLoadBMPPart(imageCache, IMG_CACHE_SIZE, byteI * IMG_CACHE_SIZE);
@@ -188,6 +189,8 @@ void displayImage(int16_t imageNumber, float value) {
 
 void displayDeej(float analogValues[]) {
   setMuxAddress(6, TYPE_DISPLAY);
+  
+  // TODO makes more sense to start deej icons at page one then offset freedeck start
   // deej screens (starts at offset 4)
   uint8_t pageOffset = 6 * 3; // Page 4
   
